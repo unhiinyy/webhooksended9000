@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blossom Webhook Sender</title>
+<style>
+  :root {
+    --pink: #ff72b6;
+    --pink2: #ff9dcc;
+    --soft: #fff3f9;
+    --text: #493443;
+    --muted: #927487;
+    --border: #f2d7e5;
+    --card: rgba(255,255,255,.88);
+    --shadow: 0 20px 55px rgba(183, 82, 135, .16);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 10% 10%, #ffd9eb 0 8%, transparent 25%),
+      radial-gradient(circle at 90% 20%, #ffe4f2 0 7%, transparent 24%),
+      linear-gradient(135deg, #fff8fc, #ffeef7 55%, #fff8fb);
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "♡  ✦  ♡  ✿  ♡  ✦  ♡";
+    position: fixed;
+    inset: 18px 0 auto;
+    text-align: center;
+    color: rgba(255,114,182,.22);
+    font-size: 24px;
+    letter-spacing: 24px;
+    pointer-events: none;
+  }
+  .wrap { width: min(1050px, 92%); margin: 0 auto; padding: 70px 0 50px; }
+  header { text-align: center; margin-bottom: 28px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(255,255,255,.75); border: 1px solid var(--border);
+    color: #c34d88; font-weight: 700; font-size: 13px;
+    box-shadow: 0 8px 25px rgba(183,82,135,.08);
+  }
+  h1 { margin: 14px 0 8px; font-size: clamp(34px, 6vw, 58px); letter-spacing: -2px; }
+  h1 span { color: var(--pink); }
+  .subtitle { color: var(--muted); margin: 0 auto; max-width: 620px; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card {
+    background: var(--card); backdrop-filter: blur(18px);
+    border: 1px solid rgba(242,215,229,.95);
+    border-radius: 24px; padding: 24px; box-shadow: var(--shadow);
+  }
+  .card h2 { margin: 0 0 18px; font-size: 18px; }
+  label { display: block; font-size: 13px; font-weight: 750; margin: 15px 0 7px; color: #664c5d; }
+  input, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 14px;
+    background: #fffafd; padding: 13px 14px; color: var(--text);
+    outline: none; font: inherit; transition: .2s;
+  }
+  input:focus, textarea:focus { border-color: var(--pink2); box-shadow: 0 0 0 4px rgba(255,114,182,.11); }
+  textarea { min-height: 145px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 7px; }
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  button {
+    border: 0; border-radius: 13px; padding: 12px 17px; cursor: pointer;
+    font: inherit; font-weight: 800; transition: transform .15s, box-shadow .15s, opacity .15s;
+  }
+  button:hover { transform: translateY(-1px); }
+  .send { flex: 1; color: white; background: linear-gradient(135deg, #ff68ae, #e85c9f); box-shadow: 0 10px 24px rgba(232,92,159,.25); }
+  .clear { background: #fff0f7; color: #b54c82; }
+  .preview-shell { background: #313338; border-radius: 18px; padding: 18px; min-height: 320px; }
+  .discord-message { display: flex; gap: 12px; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%; flex: 0 0 42px;
+    background: linear-gradient(135deg,#ff8fc5,#c86cff);
+    display: grid; place-items: center; color: white; font-weight: 900;
+  }
+  .username { color: #fff; font-weight: 750; font-size: 15px; }
+  .timestamp { color: #949ba4; font-size: 11px; margin-left: 6px; }
+  .embed {
+    margin-top: 5px; border-left: 4px solid var(--pink);
+    border-radius: 5px 10px 10px 5px; background: #2b2d31; padding: 13px 15px;
+    max-width: 100%; overflow: hidden;
+  }
+  .embed-title { color: #ff9dcc; font-weight: 850; margin-bottom: 6px; }
+  .embed-desc { color: #dbdee1; white-space: pre-wrap; line-height: 1.45; }
+  .footer { color: #949ba4; font-size: 11px; margin-top: 12px; display:flex; align-items:center; gap:8px; }
+  .footer img { width: 22px; height: 22px; border-radius: 5px; object-fit: cover; }
+  .status { margin-top: 12px; font-size: 13px; min-height: 20px; color: var(--muted); }
+  .status.ok { color: #31966b; } .status.err { color: #c44b68; }
+  .note {
+    margin-top: 20px; padding: 13px 15px; border-radius: 14px;
+    background: #fff1f8; color: #795a6d; font-size: 12px; line-height: 1.5;
+  }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .wrap { padding-top: 55px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">🌸 Blossom Webhook Sender</div>
+    <h1>Send something <span>cute.</span></h1>
+    <p class="subtitle">A tiny pink Discord webhook sender for sweet little announcements, messages, and embeds.</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>♡ Compose</h2>
+
+      <label for="webhook">Discord webhook URL</label>
+      <input id="webhook" type="url" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
+      <div class="hint">Your webhook stays in this page and is only used when you press Send.</div>
+
+      <label for="title">Message title</label>
+      <input id="title" maxlength="256" placeholder="a little message for you ♡">
+
+      <label for="message">Message</label>
+      <textarea id="message" maxlength="4096" placeholder="Write something cute... ✨"></textarea>
+
+      <div class="row">
+        <div>
+          <label for="footer">Footer text</label>
+          <input id="footer" maxlength="2048" placeholder="sent with love ♡">
+        </div>
+        <div>
+          <label for="image">Footer image URL <span style="font-weight:400;color:#aa8b9c">(optional)</span></label>
+          <input id="image" type="url" placeholder="https://.../image.png">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="send" id="sendBtn">♡ Send to Discord</button>
+        <button class="clear" id="clearBtn">Clear</button>
+      </div>
+      <div id="status" class="status"></div>
+
+      <div class="note">
+        <strong>Tip:</strong> Discord webhooks can be sent directly from a browser, but your webhook URL is a secret. Don't publish it in a public website or share it with people you don't trust.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✦ Live preview</h2>
+      <div class="preview-shell">
+        <div class="discord-message">
+          <div class="avatar">♡</div>
+          <div style="min-width:0;flex:1">
+            <div><span class="username">blossom</span><span class="timestamp">Today at 1:00 PM</span></div>
+            <div class="embed">
+              <div class="embed-title" id="previewTitle">a little message for you ♡</div>
+              <div class="embed-desc" id="previewMessage">Write something cute... ✨</div>
+              <div class="footer" id="previewFooter" style="display:none">
+                <img id="previewImage" alt="">
+                <span id="previewFooterText"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fields = ["title","message","footer","image"];
+
+function updatePreview() {
+  $("previewTitle").textContent = $("title").value || "a little message for you ♡";
+  $("previewMessage").textContent = $("message").value || "Write something cute... ✨";
+  const footer = $("footer").value.trim(), image = $("image").value.trim();
+  $("previewFooter").style.display = footer || image ? "flex" : "none";
+  $("previewFooterText").textContent = footer;
+  $("previewImage").src = image || "";
+  $("previewImage").style.display = image ? "block" : "none";
+}
+fields.forEach(id => $(id).addEventListener("input", updatePreview));
+
+$("clearBtn").addEventListener("click", () => {
+  fields.forEach(id => $(id).value = "");
+  $("status").textContent = "";
+  $("status").className = "status";
+  updatePreview();
+});
+
+$("sendBtn").addEventListener("click", async () => {
+  const webhook = $("webhook").value.trim();
+  const title = $("title").value.trim() || "a little message for you ♡";
+  const message = $("message").value.trim();
+  const footerText = $("footer").value.trim();
+  const footerImage = $("image").value.trim();
+  const status = $("status");
+
+  if (!webhook) return setStatus("Please enter a Discord webhook URL.", true);
+  if (!/^https?:\\/\\/(discord(?:app)?\\.com)\\/api\\/webhooks\\//i.test(webhook)) {
+    return setStatus("That doesn't look like a Discord webhook URL.", true);
+  }
+  if (!message) return setStatus("Please write a message first.", true);
+
+  const embed = {
+    title,
+    description: message,
+    color: 0xFF72B6,
+    footer: {
+      text: footerText || "sent with love ♡"
+    }
+  };
+
+  if (footerImage) {
+    embed.footer.icon_url = footerImage;
+  }
+
+  setStatus("Sending your cute little message… ✨", false);
+
+  try {
+    const response = await fetch(webhook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embeds: [embed] })
+    });
+
+    if (!response.ok) {
+      let detail = "";
+      try { detail = await response.text(); } catch {}
+      throw new Error(`Discord returned ${response.status}${detail ? ": " + detail.slice(0,120) : ""}`);
+    }
+
+    setStatus("Sent successfully! ♡", false, true);
+  } catch (error) {
+    setStatus("Couldn't send: " + error.message, true);
+  }
+});
+
+function setStatus(text, error = false, success = false) {
+  const s = $("status");
+  s.textContent = text;
+  s.className = "status" + (error ? " err" : success ? " ok" : "");
+}
+updatePreview();
+</script>
+</body>
+</html>
