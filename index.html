@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinkie Webhook ♡</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        min-height: 100vh;
+        font-family: Inter, Arial, sans-serif;
+        background:
+            radial-gradient(circle at 15% 20%, rgba(255, 145, 195, .25), transparent 30%),
+            radial-gradient(circle at 85% 80%, rgba(255, 190, 220, .25), transparent 30%),
+            #120d12;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 25px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1050px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .card {
+        background: rgba(30, 19, 28, .88);
+        border: 1px solid rgba(255, 130, 190, .22);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow:
+            0 20px 60px rgba(0,0,0,.45),
+            0 0 40px rgba(255, 100, 180, .06);
+        backdrop-filter: blur(15px);
+    }
+
+    .header {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .header h1 {
+        font-size: 34px;
+        color: #ff8fc7;
+        text-shadow: 0 0 25px rgba(255, 105, 180, .35);
+    }
+
+    .header p {
+        color: #bdaab7;
+        margin-top: 8px;
+    }
+
+    h2 {
+        color: #ff9dce;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: #d7c2d0;
+        margin: 16px 0 7px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1px solid #49303f;
+        background: #191119;
+        color: white;
+        border-radius: 12px;
+        padding: 13px 14px;
+        outline: none;
+        transition: .2s;
+        font-size: 14px;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 130px;
+    }
+
+    input:focus,
+    textarea:focus {
+        border-color: #ff82bc;
+        box-shadow: 0 0 0 3px rgba(255, 130, 188, .09);
+    }
+
+    .color-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    input[type="color"] {
+        width: 55px;
+        height: 45px;
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    button {
+        width: 100%;
+        border: none;
+        border-radius: 13px;
+        padding: 14px;
+        margin-top: 18px;
+        background: linear-gradient(135deg, #ff73b6, #ff9acb);
+        color: #25121d;
+        font-weight: 800;
+        font-size: 15px;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 110, 180, .25);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .secondary {
+        background: #291923;
+        color: #e8cddd;
+        margin-top: 9px;
+    }
+
+    .status {
+        min-height: 20px;
+        margin-top: 13px;
+        text-align: center;
+        font-size: 13px;
+        color: #cdbac6;
+    }
+
+    /* Discord Preview */
+
+    .discord {
+        background: #313338;
+        border-radius: 15px;
+        padding: 20px;
+        min-height: 300px;
+    }
+
+    .discord-label {
+        color: #949ba4;
+        font-size: 12px;
+        margin-bottom: 14px;
+        font-weight: 700;
+    }
+
+    .message {
+        display: flex;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff78b9, #ffc1df);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #4b2038;
+        font-weight: 900;
+        flex-shrink: 0;
+    }
+
+    .username {
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .bot {
+        background: #5865f2;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 10px;
+        margin-left: 4px;
+    }
+
+    .time {
+        color: #949ba4;
+        font-size: 11px;
+        margin-left: 4px;
+    }
+
+    .embed {
+        margin-top: 5px;
+        background: #2b2d31;
+        border-left: 4px solid #ff8fc7;
+        border-radius: 4px;
+        padding: 13px;
+        max-width: 100%;
+    }
+
+    .embed-title {
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .embed-description {
+        color: #dbdee1;
+        font-size: 14px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .footer {
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid #3f4147;
+        color: #949ba4;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .footer img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    @media (max-width: 800px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+
+        .header {
+            grid-column: auto;
+        }
+
+        body {
+            padding: 14px;
+        }
+
+        .card {
+            padding: 21px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>♡ Pinkie Webhook ♡</h1>
+        <p>A cute little Discord webhook sender</p>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="card">
+        <h2>✦ Message Editor</h2>
+
+        <label>Discord Webhook URL</label>
+        <input
+            id="webhook"
+            type="password"
+            placeholder="https://discord.com/api/webhooks/..."
+        >
+
+        <label>Message Title</label>
+        <input
+            id="title"
+            type="text"
+            placeholder="♡ hello!"
+            value="♡ A little message"
+        >
+
+        <label>Message</label>
+        <textarea
+            id="message"
+            placeholder="Write something cute..."
+        >hello!! ♡</textarea>
+
+        <label>Footer Text</label>
+        <input
+            id="footer"
+            type="text"
+            placeholder="made with love ♡"
+            value="made with love ♡"
+        >
+
+        <label>Optional Footer Image URL</label>
+        <input
+            id="footerImage"
+            type="url"
+            placeholder="https://example.com/image.png"
+        >
+
+        <label>Embed Color</label>
+        <div class="color-row">
+            <input id="color" type="color" value="#ff8fc7">
+            <input id="colorText" type="text" value="#ff8fc7">
+        </div>
+
+        <button id="send">
+            ♡ Send Webhook
+        </button>
+
+        <button class="secondary" id="clear">
+            Clear
+        </button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="card">
+        <h2>✦ Live Preview</h2>
+
+        <div class="discord">
+            <div class="discord-label">DISCORD PREVIEW</div>
+
+            <div class="message">
+
+                <div class="avatar">♡</div>
+
+                <div style="flex:1; min-width:0;">
+
+                    <div>
+                        <span class="username">Pinkie</span>
+                        <span class="bot">BOT</span>
+                        <span class="time">Today at 1:28 PM</span>
+                    </div>
+
+                    <div class="embed" id="previewEmbed">
+
+                        <div class="embed-title" id="previewTitle">
+                            ♡ A little message
+                        </div>
+
+                        <div class="embed-description" id="previewMessage">
+                            hello!! ♡
+                        </div>
+
+                        <div class="footer" id="previewFooter">
+                            <span>made with love ♡</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const webhook = document.getElementById("webhook");
+const title = document.getElementById("title");
+const message = document.getElementById("message");
+const footer = document.getElementById("footer");
+const footerImage = document.getElementById("footerImage");
+const color = document.getElementById("color");
+const colorText = document.getElementById("colorText");
+
+const previewTitle = document.getElementById("previewTitle");
+const previewMessage = document.getElementById("previewMessage");
+const previewFooter = document.getElementById("previewFooter");
+const previewEmbed = document.getElementById("previewEmbed");
+const status = document.getElementById("status");
+
+function updatePreview() {
+    previewTitle.textContent = title.value || "♡ A little message";
+    previewMessage.textContent = message.value || "Your message goes here ♡";
+
+    previewFooter.innerHTML = "";
+
+    if (footerImage.value.trim()) {
+        const img = document.createElement("img");
+        img.src = footerImage.value.trim();
+
+        img.onerror = () => {
+            img.remove();
+        };
+
+        previewFooter.appendChild(img);
+    }
+
+    const footerText = document.createElement("span");
+    footerText.textContent = footer.value || "made with love ♡";
+    previewFooter.appendChild(footerText);
+
+    previewEmbed.style.borderLeftColor = color.value;
+}
+
+[
+    title,
+    message,
+    footer,
+    footerImage,
+    webhook
+].forEach(input => {
+    input.addEventListener("input", updatePreview);
+});
+
+color.addEventListener("input", () => {
+    colorText.value = color.value;
+    updatePreview();
+});
+
+colorText.addEventListener("input", () => {
+    if (/^#[0-9A-Fa-f]{6}$/.test(colorText.value)) {
+        color.value = colorText.value;
+        updatePreview();
+    }
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+    title.value = "";
+    message.value = "";
+    footer.value = "";
+    footerImage.value = "";
+    updatePreview();
+    status.textContent = "";
+});
+
+document.getElementById("send").addEventListener("click", async () => {
+
+    const url = webhook.value.trim();
+
+    if (!url) {
+        status.textContent = "♡ Please enter a webhook URL.";
+        return;
+    }
+
+    if (!url.startsWith("https://discord.com/api/webhooks/") &&
+        !url.startsWith("https://discordapp.com/api/webhooks/")) {
+        status.textContent = "♡ That doesn't look like a Discord webhook URL.";
+        return;
+    }
+
+    const payload = {
+        username: "Pinkie ♡",
+        avatar_url: "https://cdn-icons-png.flaticon.com/512/833/833472.png",
+        embeds: [
+            {
+                title: title.value || "♡ A little message",
+                description: message.value || "hello!! ♡",
+                color: parseInt(color.value.replace("#", ""), 16),
+                footer: {
+                    text: footer.value || "made with love ♡"
+                }
+            }
+        ]
+    };
+
+    if (footerImage.value.trim()) {
+        payload.embeds[0].footer.icon_url = footerImage.value.trim();
+    }
+
+    status.textContent = "♡ Sending...";
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            status.textContent = "♡ Sent successfully!";
+        } else {
+            const text = await response.text();
+            console.error(text);
+            status.textContent = `♡ Discord returned error ${response.status}.`;
+        }
+
+    } catch (error) {
+        console.error(error);
+        status.textContent =
+            "♡ Couldn't send it. Your browser may be blocking the webhook request.";
+    }
+});
+
+updatePreview();
+</script>
+
+</body>
+</html>
