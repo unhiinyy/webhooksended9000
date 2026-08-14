@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pinkie Webhook ♡</title>
+<title>PC Panel ♡ Webhook Sender</title>
 
 <style>
     * {
@@ -97,6 +97,40 @@
     textarea:focus {
         border-color: #ff82bc;
         box-shadow: 0 0 0 3px rgba(255, 130, 188, .09);
+    }
+
+    input[type="checkbox"] {
+        width: auto;
+        accent-color: #ff82bc;
+        cursor: pointer;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        padding: 13px;
+        border: 1px solid #49303f;
+        background: rgba(255, 130, 190, .04);
+        border-radius: 12px;
+        cursor: pointer;
+    }
+
+    .checkbox-row span {
+        color: #ead7e2;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .download-options {
+        display: none;
+        margin-top: 2px;
+        padding: 0 12px 8px;
+    }
+
+    .download-options.visible {
+        display: block;
     }
 
     .color-row {
@@ -226,6 +260,15 @@
         word-break: break-word;
     }
 
+    .download-link {
+        display: inline-block;
+        margin-top: 12px;
+        color: #00a8fc;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
     .footer {
         margin-top: 12px;
         padding-top: 8px;
@@ -269,15 +312,17 @@
 <div class="container">
 
     <div class="header">
-        <h1>♡ Pinkie Webhook ♡</h1>
+        <h1>♡ PC Panel ♡</h1>
         <p>A cute little Discord webhook sender</p>
     </div>
 
-    <!-- MESSAGE EDITOR -->
+    <!-- EDITOR -->
     <div class="card">
+
         <h2>✦ Message Editor</h2>
 
         <label>Discord Webhook URL</label>
+
         <input
             id="webhook"
             type="password"
@@ -286,20 +331,66 @@
         >
 
         <label>Message Title</label>
+
         <input
             id="title"
             type="text"
             placeholder="♡ hello!"
-            value="♡ A little message"
+            value="♡ PC Panel"
         >
 
         <label>Message</label>
+
         <textarea
             id="message"
             placeholder="Write something cute..."
-        >hello!! ♡</textarea>
+        >Thank you for using PC Panel! ♡</textarea>
+
+        <!-- DOWNLOAD TOGGLE -->
+
+        <label class="checkbox-row">
+            <input
+                id="enableDownload"
+                type="checkbox"
+            >
+
+            <span>
+                ♡ Add Download Link
+            </span>
+        </label>
+
+        <div
+            class="download-options"
+            id="downloadOptions"
+        >
+
+            <label>
+                Download Link Name
+            </label>
+
+            <input
+                id="downloadName"
+                type="text"
+                placeholder="Download PcPanel"
+                value="Download PcPanel"
+            >
+
+            <label>
+                Download URL
+            </label>
+
+            <input
+                id="downloadUrl"
+                type="url"
+                placeholder="https://example.com/download"
+            >
+
+        </div>
+
+        <!-- FOOTER -->
 
         <label>Footer Text</label>
+
         <input
             id="footer"
             type="text"
@@ -307,16 +398,22 @@
             value="made with love ♡"
         >
 
-        <label>Optional Footer Image URL</label>
+        <label>
+            Optional Footer Image URL
+        </label>
+
         <input
             id="footerImage"
             type="url"
             placeholder="https://example.com/image.png"
         >
 
+        <!-- COLOR -->
+
         <label>Embed Color</label>
 
         <div class="color-row">
+
             <input
                 id="color"
                 type="color"
@@ -329,21 +426,31 @@
                 value="#ff8fc7"
                 maxlength="7"
             >
+
         </div>
 
         <button id="send">
             ♡ Send Webhook
         </button>
 
-        <button class="secondary" id="clear">
+        <button
+            class="secondary"
+            id="clear"
+        >
             Clear
         </button>
 
-        <div class="status" id="status"></div>
+        <div
+            class="status"
+            id="status"
+        ></div>
+
     </div>
 
-    <!-- LIVE PREVIEW -->
+    <!-- PREVIEW -->
+
     <div class="card">
+
         <h2>✦ Live Preview</h2>
 
         <div class="discord">
@@ -361,6 +468,7 @@
                 <div style="flex:1; min-width:0;">
 
                     <div>
+
                         <span class="username">
                             Your Webhook
                         </span>
@@ -370,8 +478,9 @@
                         </span>
 
                         <span class="time">
-                            Today at 1:28 PM
+                            Today at 4:57 PM
                         </span>
+
                     </div>
 
                     <div
@@ -383,15 +492,24 @@
                             class="embed-title"
                             id="previewTitle"
                         >
-                            ♡ A little message
+                            ♡ PC Panel
                         </div>
 
                         <div
                             class="embed-description"
                             id="previewMessage"
                         >
-                            hello!! ♡
+                            Thank you for using PC Panel! ♡
                         </div>
+
+                        <a
+                            class="download-link"
+                            id="previewDownload"
+                            href="#"
+                            style="display:none;"
+                        >
+                            Download PcPanel
+                        </a>
 
                         <div
                             class="footer"
@@ -409,27 +527,94 @@
             </div>
 
         </div>
+
     </div>
 
 </div>
 
+
 <script>
 
-const webhook = document.getElementById("webhook");
-const title = document.getElementById("title");
-const message = document.getElementById("message");
-const footer = document.getElementById("footer");
-const footerImage = document.getElementById("footerImage");
+/* =========================
+   ELEMENTS
+========================= */
 
-const color = document.getElementById("color");
-const colorText = document.getElementById("colorText");
+const webhook =
+    document.getElementById("webhook");
 
-const previewTitle = document.getElementById("previewTitle");
-const previewMessage = document.getElementById("previewMessage");
-const previewFooter = document.getElementById("previewFooter");
-const previewEmbed = document.getElementById("previewEmbed");
+const title =
+    document.getElementById("title");
 
-const status = document.getElementById("status");
+const message =
+    document.getElementById("message");
+
+const footer =
+    document.getElementById("footer");
+
+const footerImage =
+    document.getElementById("footerImage");
+
+const color =
+    document.getElementById("color");
+
+const colorText =
+    document.getElementById("colorText");
+
+const enableDownload =
+    document.getElementById("enableDownload");
+
+const downloadOptions =
+    document.getElementById("downloadOptions");
+
+const downloadName =
+    document.getElementById("downloadName");
+
+const downloadUrl =
+    document.getElementById("downloadUrl");
+
+const previewTitle =
+    document.getElementById("previewTitle");
+
+const previewMessage =
+    document.getElementById("previewMessage");
+
+const previewFooter =
+    document.getElementById("previewFooter");
+
+const previewEmbed =
+    document.getElementById("previewEmbed");
+
+const previewDownload =
+    document.getElementById("previewDownload");
+
+const status =
+    document.getElementById("status");
+
+
+/* =========================
+   DOWNLOAD TOGGLE
+========================= */
+
+enableDownload.addEventListener(
+    "change",
+    function() {
+
+        if (this.checked) {
+
+            downloadOptions.classList.add(
+                "visible"
+            );
+
+        } else {
+
+            downloadOptions.classList.remove(
+                "visible"
+            );
+        }
+
+        updatePreview();
+    }
+);
 
 
 /* =========================
@@ -439,35 +624,71 @@ const status = document.getElementById("status");
 function updatePreview() {
 
     previewTitle.textContent =
-        title.value || "♡ A little message";
+        title.value ||
+        "♡ PC Panel";
 
     previewMessage.textContent =
-        message.value || "Your message goes here ♡";
+        message.value ||
+        "Your message goes here ♡";
 
     previewEmbed.style.borderLeftColor =
         color.value;
+
+
+    /* DOWNLOAD LINK */
+
+    if (
+        enableDownload.checked &&
+        downloadName.value.trim() &&
+        downloadUrl.value.trim()
+    ) {
+
+        previewDownload.textContent =
+            downloadName.value.trim();
+
+        previewDownload.href =
+            downloadUrl.value.trim();
+
+        previewDownload.style.display =
+            "inline-block";
+
+    } else {
+
+        previewDownload.style.display =
+            "none";
+    }
+
+
+    /* FOOTER */
 
     previewFooter.innerHTML = "";
 
     if (footerImage.value.trim()) {
 
-        const img = document.createElement("img");
+        const img =
+            document.createElement("img");
 
-        img.src = footerImage.value.trim();
+        img.src =
+            footerImage.value.trim();
 
-        img.onerror = function() {
-            this.remove();
-        };
+        img.onerror =
+            function() {
+                this.remove();
+            };
 
         previewFooter.appendChild(img);
     }
 
-    const footerText = document.createElement("span");
+    const footerText =
+        document.createElement("span");
 
     footerText.textContent =
-        footer.value || "made with love ♡";
+        footer.value ||
+        "made with love ♡";
 
-    previewFooter.appendChild(footerText);
+    previewFooter.appendChild(
+        footerText
+    );
 }
 
 
@@ -475,203 +696,290 @@ function updatePreview() {
    INPUT LISTENERS
 ========================= */
 
-title.addEventListener("input", updatePreview);
-message.addEventListener("input", updatePreview);
-footer.addEventListener("input", updatePreview);
-footerImage.addEventListener("input", updatePreview);
-webhook.addEventListener("input", updatePreview);
-
-
-color.addEventListener("input", function() {
-
-    colorText.value = color.value;
-
-    updatePreview();
-});
-
-
-colorText.addEventListener("input", function() {
-
-    const value = colorText.value.trim();
-
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-
-        color.value = value;
-
-        updatePreview();
+[
+    title,
+    message,
+    footer,
+    footerImage,
+    downloadName,
+    downloadUrl,
+    webhook
+].forEach(
+    input => {
+        input.addEventListener(
+            "input",
+            updatePreview
+        );
     }
-});
+);
 
 
 /* =========================
-   CLEAR BUTTON
+   COLOR PICKER
 ========================= */
 
-document.getElementById("clear")
-.addEventListener("click", function() {
+color.addEventListener(
+    "input",
+    function() {
 
-    title.value = "";
-    message.value = "";
-    footer.value = "";
-    footerImage.value = "";
+        colorText.value =
+            color.value;
 
-    status.textContent = "";
+        updatePreview();
+    }
+);
 
-    updatePreview();
-});
+
+colorText.addEventListener(
+    "input",
+    function() {
+
+        const value =
+            colorText.value.trim();
+
+        if (
+            /^#[0-9A-Fa-f]{6}$/.test(value)
+        ) {
+
+            color.value =
+                value;
+
+            updatePreview();
+        }
+    }
+);
+
+
+/* =========================
+   CLEAR
+========================= */
+
+document
+.getElementById("clear")
+.addEventListener(
+    "click",
+    function() {
+
+        title.value = "";
+        message.value = "";
+        footer.value = "";
+        footerImage.value = "";
+
+        downloadName.value =
+            "Download PcPanel";
+
+        downloadUrl.value = "";
+
+        enableDownload.checked =
+            false;
+
+        downloadOptions.classList.remove(
+            "visible"
+        );
+
+        status.textContent = "";
+
+        updatePreview();
+    }
+);
 
 
 /* =========================
    SEND WEBHOOK
 ========================= */
 
-document.getElementById("send")
-.addEventListener("click", async function() {
+document
+.getElementById("send")
+.addEventListener(
+    "click",
+    async function() {
 
-    const url = webhook.value.trim();
-
-    /* Check webhook URL */
-
-    if (!url) {
-
-        status.textContent =
-            "♡ Please enter a webhook URL.";
-
-        return;
-    }
+        const url =
+            webhook.value.trim();
 
 
-    if (
-        !url.startsWith(
-            "https://discord.com/api/webhooks/"
-        ) &&
-        !url.startsWith(
-            "https://discordapp.com/api/webhooks/"
-        )
-    ) {
+        /* WEBHOOK CHECK */
 
-        status.textContent =
-            "♡ That doesn't look like a Discord webhook URL.";
+        if (!url) {
 
-        return;
-    }
+            status.textContent =
+                "♡ Please enter a webhook URL.";
+
+            return;
+        }
 
 
-    /* Convert HEX color to Discord integer */
+        if (
+            !url.startsWith(
+                "https://discord.com/api/webhooks/"
+            ) &&
+            !url.startsWith(
+                "https://discordapp.com/api/webhooks/"
+            )
+        ) {
 
-    const embedColor =
-        parseInt(
-            color.value.replace("#", ""),
-            16
-        );
+            status.textContent =
+                "♡ That doesn't look like a Discord webhook URL.";
+
+            return;
+        }
 
 
-    /* =========================
-       DISCORD PAYLOAD
+        /* =========================
+           BUILD DESCRIPTION
+        ========================= */
 
-       Notice:
-       There is NO username
-       and NO avatar_url here.
-
-       Discord therefore uses the
-       webhook's configured identity.
-    ========================= */
-
-    const embed = {
-
-        title:
-            title.value ||
-            "♡ A little message",
-
-        description:
+        let description =
             message.value ||
-            "hello!! ♡",
+            "hello!! ♡";
 
-        color:
-            embedColor,
 
-        footer: {
+        /*
+         * Discord supports masked links
+         * in embed content:
+         *
+         * [text](url)
+         */
 
-            text:
-                footer.value ||
-                "made with love ♡"
+        if (
+            enableDownload.checked &&
+            downloadName.value.trim() &&
+            downloadUrl.value.trim()
+        ) {
+
+            description +=
+                "\n\n♡ [" +
+                downloadName.value.trim() +
+                "](" +
+                downloadUrl.value.trim() +
+                ")";
         }
-    };
 
 
-    /* Optional footer image */
+        /* =========================
+           EMBED
+        ========================= */
 
-    if (footerImage.value.trim()) {
+        const embed = {
 
-        embed.footer.icon_url =
-            footerImage.value.trim();
-    }
+            title:
+                title.value ||
+                "♡ PC Panel",
 
+            description:
+                description,
 
-    const payload = {
+            color:
+                parseInt(
+                    color.value.replace(
+                        "#",
+                        ""
+                    ),
+                    16
+                ),
 
-        embeds: [
-            embed
-        ]
-    };
+            footer: {
 
-
-    /* =========================
-       SEND
-    ========================= */
-
-    status.textContent =
-        "♡ Sending...";
-
-    try {
-
-        const response = await fetch(
-            url,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify(payload)
+                text:
+                    footer.value ||
+                    "made with love ♡"
             }
-        );
+        };
 
 
-        if (response.ok) {
+        /* FOOTER IMAGE */
 
-            status.textContent =
-                "♡ Sent successfully!";
+        if (
+            footerImage.value.trim()
+        ) {
 
-        } else {
-
-            const errorText =
-                await response.text();
-
-            console.error(
-                "Discord error:",
-                errorText
-            );
-
-            status.textContent =
-                `♡ Discord returned error ${response.status}.`;
+            embed.footer.icon_url =
+                footerImage.value.trim();
         }
 
-    } catch (error) {
 
-        console.error(error);
+        /* =========================
+           PAYLOAD
+           
+           No username.
+           No avatar_url.
+
+           Discord therefore keeps
+           the webhook's configured
+           username and profile picture.
+        ========================= */
+
+        const payload = {
+
+            embeds: [
+                embed
+            ]
+        };
+
+
+        /* =========================
+           SEND
+        ========================= */
 
         status.textContent =
-            "♡ Couldn't send it. Your browser may be blocking the webhook request.";
+            "♡ Sending...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+                    }
+                );
+
+
+            if (response.ok) {
+
+                status.textContent =
+                    "♡ Sent successfully!";
+
+            } else {
+
+                const errorText =
+                    await response.text();
+
+                console.error(
+                    "Discord error:",
+                    errorText
+                );
+
+                status.textContent =
+                    `♡ Discord returned error ${response.status}.`;
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            status.textContent =
+                "♡ Couldn't send it. Your browser may be blocking the webhook request.";
+        }
+
     }
+);
 
-});
 
-
-/* Initial preview */
+/* =========================
+   INITIAL PREVIEW
+========================= */
 
 updatePreview();
 
